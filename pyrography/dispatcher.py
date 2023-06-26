@@ -68,6 +68,8 @@ class Dispatcher:
         self.updates_queue = asyncio.Queue()
         self.groups = OrderedDict()
 
+        self.pendencies = []
+
         async def message_parser(update, users, chats):
             return (
                 await pyrography.types.Message._parse(self.client, update.message, users, chats,
@@ -222,6 +224,44 @@ class Dispatcher:
                 )
 
                 async with lock:
+                    pendency_found = False
+
+                    # Iterating the pendencies list.
+                    for pendency in self.pendencies:
+                        # Getting the pendency filter.
+                        pendency_filter = pendency['filter']
+
+                        # Getting the pendecy update type.
+                        pendency_type = pendency['type']
+
+                        # Skip iteration if update type is different.
+                        if pendency_type and pendency_type != type(parsed_update):
+                            continue
+
+                        # Validating that the filter does not match the update.
+                        pendency_match_filter = all([
+                            pendency_filter,
+                            not await pendency_filter(
+                                self.client,
+                                parsed_update
+                            )
+                        ])
+
+                        # Skips iteration if the filter does not match.
+                        if pendency_match_filter:
+                            continue
+
+                        # Responds to pendency the update.
+                        pendency['update'] = parsed_update
+
+                        # Informing that the pendency matched.
+                        pendency_found = True
+
+                    # Prevents handlers from listening,
+                    # so no commands are triggered.
+                    if pendency_found:
+                        continue
+
                     for group in self.groups.values():
                         for handler in group:
                             args = None
