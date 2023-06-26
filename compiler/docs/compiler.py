@@ -78,7 +78,7 @@ def generate(source_path, base):
                         page_template.format(
                             title=full_name,
                             title_markup="=" * len(full_name),
-                            full_class_path="pyrogram.raw.{}".format(
+                            full_class_path="pyrography.raw.{}".format(
                                 ".".join(full_path.split("/")[:-1]) + "." + name
                             )
                         )
@@ -100,14 +100,14 @@ def generate(source_path, base):
 
         if k != base:
             inner_path = base + "/" + k + "/index" + ".rst"
-            module = "pyrogram.raw.{}.{}".format(base, k)
+            module = "pyrography.raw.{}.{}".format(base, k)
         else:
             for i in sorted(list(all_entities), reverse=True):
                 if i != base:
                     entities.insert(0, "{0}/index".format(i))
 
             inner_path = base + "/index" + ".rst"
-            module = "pyrogram.raw.{}".format(base)
+            module = "pyrography.raw.{}".format(base)
 
         with open(DESTINATION + "/" + inner_path, "w", encoding="utf-8") as f:
             if k == base:
@@ -353,7 +353,7 @@ def pyrogram_api():
                     title = "{}()".format(method)
 
                     f2.write(title + "\n" + "=" * len(title) + "\n\n")
-                    f2.write(".. automethod:: pyrogram.Client.{}()".format(method))
+                    f2.write(".. automethod:: pyrography.Client.{}()".format(method))
 
             functions = ["idle", "compose"]
 
@@ -362,7 +362,7 @@ def pyrogram_api():
                     title = "{}()".format(func)
 
                     f2.write(title + "\n" + "=" * len(title) + "\n\n")
-                    f2.write(".. autofunction:: pyrogram.{}()".format(func))
+                    f2.write(".. autofunction:: pyrography.{}()".format(func))
 
         f.write(template.format(**fmt_keys))
 
@@ -517,7 +517,7 @@ def pyrogram_api():
                     title = "{}".format(type)
 
                     f2.write(title + "\n" + "=" * len(title) + "\n\n")
-                    f2.write(".. autoclass:: pyrogram.types.{}()\n".format(type))
+                    f2.write(".. autoclass:: pyrography.types.{}()\n".format(type))
 
         f.write(template.format(**fmt_keys))
 
@@ -631,7 +631,7 @@ def pyrogram_api():
                     title = "{}()".format(bm)
 
                     f2.write(title + "\n" + "=" * len(title) + "\n\n")
-                    f2.write(".. automethod:: pyrogram.types.{}()".format(bm))
+                    f2.write(".. automethod:: pyrography.types.{}()".format(bm))
 
         f.write(template.format(**fmt_keys))
 
@@ -655,9 +655,9 @@ def start():
 
 
 if "__main__" == __name__:
-    FUNCTIONS_PATH = "../../pyrogram/raw/functions"
-    TYPES_PATH = "../../pyrogram/raw/types"
-    BASE_PATH = "../../pyrogram/raw/base"
+    FUNCTIONS_PATH = "../../pyrography/raw/functions"
+    TYPES_PATH = "../../pyrography/raw/types"
+    BASE_PATH = "../../pyrography/raw/base"
     HOME = "."
     DESTINATION = "../../docs/source/telegram"
     PYROGRAM_API_DEST = "../../docs/source/api"

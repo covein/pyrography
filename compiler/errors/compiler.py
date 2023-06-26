@@ -27,7 +27,7 @@ import re
 import shutil
 
 HOME = "compiler/errors"
-DEST = "pyrogram/errors/exceptions"
+DEST = "pyrography/errors/exceptions"
 NOTICE_PATH = "NOTICE"
 
 
@@ -141,7 +141,7 @@ def start():
 
 if "__main__" == __name__:
     HOME = "."
-    DEST = "../../pyrogram/errors/exceptions"
+    DEST = "../../pyrography/errors/exceptions"
     NOTICE_PATH = "../../NOTICE"
 
     start()

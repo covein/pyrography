@@ -23,7 +23,7 @@ with Pyrography. If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
 
-from pyrogram import filters
+from pyrography import filters
 from tests.filters import Client, Message
 
 c = Client()

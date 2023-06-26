@@ -2,9 +2,9 @@
 
 from io import BytesIO
 
-from pyrogram.raw.core.primitives import Int, Long, Int128, Int256, Bool, Bytes, String, Double, Vector
-from pyrogram.raw.core import TLObject
-from pyrogram import raw
+from pyrography.raw.core.primitives import Int, Long, Int128, Int256, Bool, Bytes, String, Double, Vector
+from pyrography.raw.core import TLObject
+from pyrography import raw
 from typing import List, Optional, Any
 
 {warning}

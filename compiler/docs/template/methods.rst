@@ -1,13 +1,13 @@
 Available Methods
 =================
 
-This page is about Pyrogram methods. All the methods listed here are bound to a :class:`~pyrogram.Client` instance,
-except for :meth:`~pyrogram.idle()` and :meth:`~pyrogram.compose()`, which are special functions that can be found in
+This page is about Pyrography methods. All the methods listed here are bound to a :class:`~pyrography.Client` instance,
+except for :meth:`~pyrography.idle()` and :meth:`~pyrography.compose()`, which are special functions that can be found in
 the main package directly.
 
 .. code-block:: python
 
-    from pyrogram import Client
+    from pyrography import Client
 
     app = Client("my_account")
 
@@ -16,7 +16,7 @@ the main package directly.
 
 -----
 
-.. currentmodule:: pyrogram.Client
+.. currentmodule:: pyrography.Client
 
 Utilities
 ---------
@@ -31,7 +31,7 @@ Utilities
 
     {utilities}
 
-.. currentmodule:: pyrogram
+.. currentmodule:: pyrography
 
 .. autosummary::
     :nosignatures:
@@ -45,7 +45,7 @@ Utilities
     idle
     compose
 
-.. currentmodule:: pyrogram.Client
+.. currentmodule:: pyrography.Client
 
 Messages
 --------

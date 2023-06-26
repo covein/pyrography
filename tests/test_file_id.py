@@ -23,7 +23,7 @@ with Pyrography. If not, see <http://www.gnu.org/licenses/>.
 
 import pytest
 
-from pyrogram.file_id import FileId, FileUniqueId, FileType, FileUniqueType
+from pyrography.file_id import FileId, FileUniqueId, FileType, FileUniqueType
 
 
 def check(file_id: str, expected_file_type: FileType):
