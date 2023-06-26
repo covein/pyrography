@@ -69,6 +69,7 @@ class Dispatcher:
         self.groups = OrderedDict()
 
         self.pendencies = []
+        self.running_handlers = []
 
         async def message_parser(update, users, chats):
             return (
@@ -281,6 +282,9 @@ class Dispatcher:
                                 continue
 
                             try:
+                                # Adding handler to running handlers list.
+                                self.running_handlers.append(handler)
+
                                 if inspect.iscoroutinefunction(handler.callback):
                                     await handler.callback(self.client, *args)
                                 else:
@@ -296,6 +300,9 @@ class Dispatcher:
                                 continue
                             except Exception as e:
                                 log.exception(e)
+                            finally:
+                                # Removing handler from running handlers list.
+                                self.running_handlers.remove(handler)
 
                             break
             except pyrography.StopPropagation:

@@ -25,6 +25,7 @@ import asyncio
 import logging
 import signal
 from signal import signal as signal_fn, SIGINT, SIGTERM, SIGABRT
+import threading
 
 log = logging.getLogger(__name__)
 
@@ -35,7 +36,23 @@ signals = {
 }
 
 
-async def idle():
+# FIXME: Have some possible code improvement?
+def create_thread(function):
+    def inner(*args, **kwargs):
+        threading.Thread(
+            target=function,
+            args=args,
+            kwargs=kwargs
+        ).start()
+    return inner
+
+
+def set_interruption_signal_handlers(handler):
+    for s in (SIGINT, SIGTERM, SIGABRT):
+        signal_fn(s, create_thread(handler))
+
+
+async def idle(client):
     """Block the main script execution until a signal is received.
 
     This function will run indefinitely in order to block the main script execution and prevent it from
@@ -66,7 +83,7 @@ async def idle():
                 for app in apps:
                     await app.start()
 
-                await idle()
+                await idle(Client)
 
                 for app in apps:
                     await app.stop()
@@ -75,13 +92,52 @@ async def idle():
             asyncio.run(main())
     """
     task = None
+    signalized = False
 
     def signal_handler(signum, __):
-        logging.info(f"Stop signal received ({signals[signum]}). Exiting...")
+        # Accessing nonlocal variable.
+        nonlocal signalized
+
+        # Prevent unnecessary execution.
+        if signalized:
+            return
+
+        # Set as signalized.
+        signalized = True
+
+        logging.info(
+            f"Stop signal received ({signals[signum]}). Preparing to stop..."
+        )
+
+        dispatcher = client.dispatcher
+
+        # Removing all registered handlers to prevent new tasks.
+        logging.info('Removing all registered handlers to prevent new tasks.')
+        dispatcher.groups.clear()
+
+        # Waiting for running handlers to terminate.
+        logging.info('Waiting for running handlers to terminate..')
+        while dispatcher.running_handlers:
+            pass
+
+        # If there are pendencies.
+        if dispatcher.pendencies:
+            logging.info((
+                '{} pendencies waiting for resolution, '
+                'you must to wait it.'
+            ).format(len(dispatcher.pendencies)))
+
+        # Waiting the pendencies resolution.
+        while dispatcher.pendencies:
+            pass
+
+        # Stop listening.
         task.cancel()
 
-    for s in (SIGINT, SIGTERM, SIGABRT):
-        signal_fn(s, signal_handler)
+    # Setting all interrupting signals with a custom handler.
+    set_interruption_signal_handlers(
+        create_thread(signal_handler)
+    )
 
     while True:
         task = asyncio.create_task(asyncio.sleep(600))
