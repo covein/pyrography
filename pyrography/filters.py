@@ -923,7 +923,16 @@ class chat(Filter, set):
             else c for c in chats
         )
 
-    async def __call__(self, _, message: Message):
+    async def __call__(self, _, update: Message | CallbackQuery):
+        if isinstance(update, CallbackQuery):
+            message = update.message
+        elif isinstance(update, Message):
+            message = update
+        else:
+            raise TypeError(
+                f'No support to {type(update)} update type.'
+            )
+
         return (message.chat
                 and (message.chat.id in self
                      or (message.chat.username
