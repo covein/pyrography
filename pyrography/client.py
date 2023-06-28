@@ -39,6 +39,8 @@ from mimetypes import MimeTypes
 from pathlib import Path
 from typing import Union, List, Optional, Callable, AsyncGenerator
 
+from rich.logging import RichHandler
+
 import pyrography
 from pyrography import __version__, __license__
 from pyrography import enums
@@ -80,6 +82,10 @@ class Client(Methods):
         api_hash (``str``, *optional*):
             The *api_hash* part of the Telegram API key, as string.
             E.g.: "0123456789abcdef0123456789abcdef".
+        
+        log_level (``int``, *optional*):
+            Log level.
+            Defaults to ``logging.INFO``.
 
         app_version (``str``, *optional*):
             Application version.
@@ -209,6 +215,7 @@ class Client(Methods):
         name: str,
         api_id: Union[int, str] = None,
         api_hash: str = None,
+        log_level: str = logging.INFO,
         app_version: str = APP_VERSION,
         device_model: str = DEVICE_MODEL,
         system_version: str = SYSTEM_VERSION,
@@ -237,6 +244,14 @@ class Client(Methods):
         self.name = name
         self.api_id = int(api_id) if api_id else None
         self.api_hash = api_hash
+
+        if log_level:
+            logging.basicConfig(
+                level=log_level,
+                format="%(message)s",
+                handlers=[RichHandler()]
+            )
+
         self.app_version = app_version
         self.device_model = device_model
         self.system_version = system_version
