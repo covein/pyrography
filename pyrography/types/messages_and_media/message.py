@@ -24,7 +24,8 @@ with Pyrography. If not, see <http://www.gnu.org/licenses/>.
 import logging
 from datetime import datetime
 from functools import partial
-from typing import List, Match, Union, BinaryIO, Optional, Callable
+from typing import (List, Match, Union, BinaryIO,
+                    Optional, Callable, Tuple, AsyncIterator)
 
 import pyrography
 from pyrography import raw, enums
@@ -3593,3 +3594,141 @@ class Message(Object, Update):
             chat_id=self.chat.id,
             message_id=self.id
         )
+
+    async def ask(self,
+                  text: str,
+                  quote: bool = None,
+                  same_chat: bool = True,
+                  same_user: bool = True,
+                  same_message_id: bool = True,
+                  type: "types.Update" = None,
+                  parse_mode: Optional["enums.ParseMode"] = None,
+                  entities: List["types.MessageEntity"] = None,
+                  disable_web_page_preview: bool = None,
+                  disable_notification: bool = None,
+                  reply_to_message_id: int = None,
+                  schedule_date: datetime = None,
+                  protect_content: bool = None,
+                  reply_markup=None) -> AsyncIterator[Tuple["types.Message", "types.Message"]]:
+        """
+        Bound method *ask* of :obj:`~pyrography.types.Message`.
+
+        Send a reply text message and wait for updates.
+
+        Parameters:
+            text (``str``):
+                Text of the message to be sent.
+
+            quote (``bool``, *optional*):
+                If ``True``, the message will be sent as a reply to this message.
+                If *reply_to_message_id* is passed, this parameter will be ignored.
+                Defaults to ``True`` in group chats and ``False`` in private chats.
+
+            same_chat (``bool``, *optional*):
+                Filters update by the user that sent message.
+                Defaults to ``True``.
+
+            same_user (``bool``, *optional*):
+                Filters update by the chat that the user sent a message.
+                Defaults to ``True``.
+
+            same_message_id (``bool``, *optional*):
+                Filters update by the `message_id` that the bot sent a message.
+                It works only if *type* parameter receives ``pyrography.types.CallbackQuery`` 
+                Defaults to ``True``.
+
+            type (``Update``, *optional*):
+                Update type that must be expected.
+                Defaults to ``pyrography.types.Message``.
+
+            parse_mode (:obj:`~pyrography.enums.ParseMode`, *optional*):
+                By default, texts are parsed using both Markdown and HTML styles.
+                You can combine both syntaxes together.
+
+            entities (List of :obj:`~pyrography.types.MessageEntity`):
+                List of special entities that appear in message text, which can be specified instead of *parse_mode*.
+
+            disable_web_page_preview (``bool``, *optional*):
+                Disables link previews for links in this message.
+
+            disable_notification (``bool``, *optional*):
+                Sends the message silently.
+                Users will receive a notification with no sound.
+
+            reply_to_message_id (``int``, *optional*):
+                If the message is a reply, ID of the original message.
+
+            schedule_date (:py:obj:`~datetime.datetime`, *optional*):
+                Date when the message will be automatically sent.
+
+            protect_content (``bool``, *optional*):
+                Protects the contents of the sent message from forwarding and saving.
+
+            reply_markup (:obj:`~pyrography.types.InlineKeyboardMarkup` | :obj:`~pyrography.types.ReplyKeyboardMarkup` | :obj:`~pyrography.types.ReplyKeyboardRemove` | :obj:`~pyrography.types.ForceReply`, *optional*):
+                Additional interface options. An object for an inline keyboard, custom reply keyboard,
+                instructions to remove reply keyboard or to force a reply from the user.
+
+        Yields:
+            On success, the sent Message and the update is yielded.
+
+        Raises:
+            RPCError: In case of a Telegram RPC error.
+            TimeoutError: In case of timeout reached.
+        """
+
+        # Sending message to chat of this message.
+        ask_message = await self.reply_text(
+            text=text,
+            quote=quote,
+            parse_mode=parse_mode,
+            entities=entities,
+            disable_web_page_preview=disable_web_page_preview,
+            disable_notification=disable_notification,
+            reply_to_message_id=reply_to_message_id,
+            schedule_date=schedule_date,
+            protect_content=protect_content,
+            reply_markup=reply_markup
+        )
+
+        # & extra_filters = None (defalt filter.user)
+        user_id = self.from_user.id
+        chat_id = self.chat.id
+        message_id = ask_message.id
+
+        # Default: no filters, wait for any update.
+        filters = None
+
+        # If `same_user` is True, filters update by the user that sent message.
+        if same_user:
+            filters = pyrography.filters.user(user_id)
+
+        # If `same_chat` is True and `type` is not InlineQuery
+        # filters update by the chat that the user sent a message.
+        if same_chat and type != types.InlineQuery:
+            if filters:
+                filters = filters & pyrography.filters.chat(chat_id)
+            else:
+                filters = pyrography.filters.chat(chat_id)
+        
+        # If `same_message_id` is True and `type` is CallbackQuery
+        # filters update by the `message_id` that the bot sent a message.
+        if same_message_id and type == types.CallbackQuery:
+            if filters:
+                filters = filters & pyrography.filters.message_id(message_id)
+            else:
+                filters = pyrography.filters.message_id(message_id)
+
+        # If `type` is None, set as default to `types.Message`
+        if type is None:
+            type = types.Message
+
+        # Infinite loop.
+        while True:
+            # Waiting for the update.
+            answer_update = await self._client.wait_for(
+                filter=filters,
+                type=type
+            )
+
+            # Yielding tuple of ask message and answer update.
+            yield ask_message, answer_update
