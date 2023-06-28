@@ -23,7 +23,7 @@ with Pyrography. If not, see <http://www.gnu.org/licenses/>.
 
 import inspect
 import re
-from typing import Callable, Union, List, Pattern
+from typing import Callable, Union, List, Pattern, Iterable
 
 import pyrography
 from pyrography import enums
@@ -941,3 +941,48 @@ class chat(Filter, set):
                          and message.from_user
                          and message.from_user.is_self
                          and not message.outgoing)))
+
+
+def message_id(ids: Union[int, Iterable[int]]):
+    """
+    Filter updates that match a given message id.
+
+    Can be applied to handlers that receive one of the following updates:
+
+    - :obj:`~pyrography.types.Message`: The filter will match ``message.id``
+    - :obj:`~pyrography.types.CallbackQuery`: The filter will match ``update.message.id``.
+
+    Parameters:
+        ids (``int`` | ``Iterable[int]``):
+            An integer id or a integer list of ids.
+    """
+    async def func(flt, _, update: Update):
+        # If parameter `ids` received an integer.
+        if isinstance(flt.ids, int):
+            flt.ids = [flt.ids]
+        # Else, if parameter `ids` is not an iterable.
+        elif not isinstance(flt.ids, Iterable):
+            raise TypeError(
+                f'Parameter `ids` must be an iterable, not {type(flt.ids)}'
+            )
+        else:
+            flt.ids = list(flt.ids)
+
+        # If `update` is instance of `types.CallbackQuery`.
+        if isinstance(update, CallbackQuery):
+            message_id = update.message.id
+        # Else, if `update` is instance of `types.Message`.
+        elif isinstance(update, Message):
+            message_id = update.id
+        else:
+            raise TypeError(
+                f'No support to {type(update)} update type.'
+            )
+
+        return message_id in flt.ids
+
+    return create(
+        func=func,
+        name='MessageIdFilter',
+        ids=ids
+    )
