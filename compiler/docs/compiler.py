@@ -30,9 +30,9 @@ HOME = "compiler/docs"
 DESTINATION = "docs/source/telegram"
 PYROGRAM_API_DEST = "docs/source/api"
 
-FUNCTIONS_PATH = "pyrogram/raw/functions"
-TYPES_PATH = "pyrogram/raw/types"
-BASE_PATH = "pyrogram/raw/base"
+FUNCTIONS_PATH = "pyrography/raw/functions"
+TYPES_PATH = "pyrography/raw/types"
+BASE_PATH = "pyrography/raw/base"
 
 FUNCTIONS_BASE = "functions"
 TYPES_BASE = "types"
@@ -134,6 +134,10 @@ def generate(source_path, base):
 def pyrogram_api():
     def get_title_list(s: str) -> list:
         return [i.strip() for i in [j.strip() for j in s.split("\n") if j] if i]
+    
+    if not os.path.exists(PYROGRAM_API_DEST):
+        os.mkdir(PYROGRAM_API_DEST)
+    
 
     # Methods
 
