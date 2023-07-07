@@ -26,6 +26,8 @@ import logging
 import signal
 from signal import signal as signal_fn, SIGINT, SIGTERM, SIGABRT
 import threading
+import pyrography
+from typing import Union, Iterable
 
 log = logging.getLogger(__name__)
 
@@ -52,7 +54,7 @@ def set_interruption_signal_handlers(handler):
         signal_fn(s, create_thread(handler))
 
 
-async def idle(client):
+async def idle(client: Union['pyrography.Client', Iterable['pyrography.Client']]):
     """Block the main script execution until a signal is received.
 
     This function will run indefinitely in order to block the main script execution and prevent it from
@@ -83,7 +85,7 @@ async def idle(client):
                 for app in apps:
                     await app.start()
 
-                await idle(Client)
+                await idle(apps)
 
                 for app in apps:
                     await app.stop()
@@ -91,6 +93,15 @@ async def idle(client):
 
             asyncio.run(main())
     """
+    if isinstance(client, pyrography.Client):
+        clients = [client]
+    elif isinstance(client, Iterable):
+        clients = list(client)
+    else:
+        raise TypeError(
+            f'Parameter `client` must be an iterable or a Client, not {type(client)}'
+        )
+
     task = None
     signalized = False
 
@@ -109,27 +120,31 @@ async def idle(client):
             f"Stop signal received ({signals[signum]}). Preparing to stop..."
         )
 
-        dispatcher = client.dispatcher
+        # Iterating all client instances.
+        for client in clients:
+            # Creating alias to `client.dispatcher`.
+            dispatcher = client.dispatcher
+            logging.info(f'Preparing safety stop to client: {client.name}')
 
-        # Removing all registered handlers to prevent new tasks.
-        logging.info('Removing all registered handlers to prevent new tasks.')
-        dispatcher.groups.clear()
+            # Removing all registered handlers to prevent new tasks.
+            logging.info('Removing all registered handlers to prevent new tasks.')
+            dispatcher.groups.clear()
 
-        # Waiting for running handlers to terminate.
-        logging.info('Waiting for running handlers to terminate..')
-        while dispatcher.running_handlers:
-            pass
+            # Waiting for running handlers to terminate.
+            logging.info('Waiting for running handlers to terminate..')
+            while dispatcher.running_handlers:
+                pass
 
-        # If there are pendencies.
-        if dispatcher.pendencies:
-            logging.info((
-                '{} pendencies waiting for resolution, '
-                'you must to wait it.'
-            ).format(len(dispatcher.pendencies)))
+            # If there are pendencies.
+            if dispatcher.pendencies:
+                logging.info((
+                    '{} pendencies waiting for resolution, '
+                    'you must to wait it.'
+                ).format(len(dispatcher.pendencies)))
 
-        # Waiting the pendencies resolution.
-        while dispatcher.pendencies:
-            pass
+            # Waiting the pendencies resolution.
+            while dispatcher.pendencies:
+                pass
 
         # Stop listening.
         task.cancel()
