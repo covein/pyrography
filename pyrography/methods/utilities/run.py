@@ -81,11 +81,16 @@ class Run:
         if coroutine is not None:
             run(coroutine)
         else:
-            if inspect.iscoroutinefunction(self.start):
-                run(self.start())
-                run(idle())
-                run(self.stop())
-            else:
-                self.start()
-                run(idle())
-                self.stop()
+            if loop.is_running():
+                raise RuntimeError(
+                    'You must call client.run() method out of asyncio event loop. '
+                    'Otherwise you can to use client.start() and pyrography.idle() after.')
+
+            # Start MTProto connection.
+            self.start()
+
+            # Blocking execution and listening updates.
+            run(idle(self))
+
+            # Disconnect MTProto connection.
+            self.stop()
