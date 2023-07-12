@@ -28,11 +28,12 @@
 > Elegant, modern and asynchronous Telegram MTProto API framework in Python for users and bots
 
 ```python3
-import asyncio
-from pyrography import Client, filters, idle
+from pyrography import Client, filters
+
 
 # Creating a client instance to control your bot.
-# NOTE: Get your `api_id` and `api_hash` credentials on: my.telegram.org
+# NOTE: Get your `api_id` and `api_hash` credentials on: my.telegram.org.
+# (optional `bot_token` parameter)
 client = Client(
     name='your_session_name',
     api_id=...,
@@ -43,7 +44,7 @@ client = Client(
 @client.on_message(filters.command('start'))
 async def ask_user_name(client, message):
     # Ask the user age.
-    asking = message.ask("What's your name?")
+    asking = message.ask("What's your name?", quote=True)
 
     # Getting ask message and answer message.
     # TIP: you can to use `async for` too!
@@ -52,26 +53,13 @@ async def ask_user_name(client, message):
     # Getting message text.
     user_name = answer.text
 
-    # Replying message.
-    await answer.reply(f'Nice name, {user_name}!')
+    # Replying message, without quote.
+    await answer.reply(f'Nice name, {user_name}!', quote=False)
 
-
-async def main():
-    # Start MTProto connection.
-    await client.start()
-
-    # Listen all command handlers.
-    await idle(client)
-
-    # When idle() is terminated, stop the client.
-    await client.stop()
 
 if __name__ == '__main__':
-    # Getting asyncio event loop.
-    loop = asyncio.get_event_loop()
-
-    # Run main() function until complete it.
-    loop.run_until_complete(main())
+    # Starting client and listening for updates.
+    client.run()
 ```
 
 **Pyrography** is a modern, elegant and asynchronous [MTProto API](https://docs.pyrogram.org/topics/mtproto-vs-botapi)
