@@ -6,19 +6,11 @@
     <b>Telegram MTProto API Framework for Python</b>
     <br/>A wonderful Pyrogram fork inspired by Pyromod & AmanoTeam/Pyrogram
     <br>
-    <a href="https://pyrogram.org">
-        Homepage
-    </a>
-    •
-    <a href="https://docs.pyrogram.org">
-        Documentation
-    </a>
-    •
-    <a href="https://docs.pyrogram.org/releases">
+    <a href="https://github.com/d3cryptofc/pyrography/releases">
         Releases
     </a>
     •
-    <a href="https://t.me/pyrogram">
+    <a href="https://t.me/forkpyrography">
         News
     </a>
 </p>
