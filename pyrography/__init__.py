@@ -21,7 +21,7 @@ You should have received a copy of the GNU Lesser General Public License along
 with Pyrography. If not, see <http://www.gnu.org/licenses/>.
 """
 
-__version__ = "1.0.1"
+__version__ = "1.0.2"
 __license__ = "GNU Lesser General Public License v3.0 (LGPL-3.0)"
 __copyright__ = (
     'Pyrography - A wonderful Pyrogram fork inspired by Pyromod & AmanoTeam/Pyrogram.\n'
