@@ -61,56 +61,40 @@ identity (bot API alternative) using Python.
 #### Why should you use Pyrography?
 
 ##### 1. Stop safety
-Pyrography is the only mtproto library currently that when pressing `CTRL + C` to interrupt the program, it will wait for pending commands to finish, preventing anything from being incomplete.
+Pyrography is the only mtproto library currently that when pressing `CTRL` + `C` to interrupt the program, it will wait for pending commands to finish, preventing anything from being incomplete.
 
-#### To most performance and others
+### To most performance and others
 
-##### [TgCrypto](https://pypi.org/project/TgCrypto/)
+##### 1. Fast cryptography ([TgCrypto](https://pypi.org/project/TgCrypto/))
 A Cryptography Library written in C as a Python extension. It is designed to be portable, fast, easy to install and use. TgCrypto is intended for Pyrogram and implements the cryptographic algorithms Telegram requires.
 
 Automatically installed, ignore it.
 
-##### [Uvloop](https://pypi.org/project/uvloop/)
+##### 2. Fast event loop ([Uvloop](https://pypi.org/project/uvloop/))
 A fast, drop-in replacement of the built-in asyncio event loop. uvloop is implemented in Cython and uses libuv under the hood.
 
-Install it with `pip install uvloop`, import it and call `uvloop.install()` in your main script.
+Install it, import it and call `uvloop.install()` in your main script.
 
-##### Latency
-On hosting, choose an region close to Miami to your machine.
-
-##### Wonderful logging
-Use the `rich` library to have pretty logs.
-
-Automatically installed and default setted on `log_level` client parameter, set with `logging.NOTSET` to disable it.
-
-```python3
-import logging
-from rich.logging import RichHandler
-
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(message)s",
-    handlers=[RichHandler()]
-)
-
-log = logging.getLogger(__name__)
-log.info("Hello, World!")
-```
+##### 3. Wonderful logging ([Rich](https://pypi.org/project/rich/))
+Enabled by default, but you can to disable it setting **log_level** parameter to `logging.NOTSET`.
 
 [Read more here](https://rich.readthedocs.io/en/stable/logging.html).
+
+##### 4. Low latency
+On hosting, choose an region close to Miami to your machine.
 
 ### Installing
 
 #### Pypi
 
 ```
-pip install pyrography
+python3 -m pip install pyrography
 ```
 
 #### Github
 
 ```
-pip3 install git+https://github.com/d3cryptofc/pyrography
+python3 -m pip install git+https://github.com/d3cryptofc/pyrography
 ```
 
 ### Support Official Pyrogram
