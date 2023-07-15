@@ -25,6 +25,8 @@ import asyncio
 import inspect
 import logging
 from collections import OrderedDict
+from dataclasses import dataclass
+from typing import List, Union
 
 import pyrography
 from pyrography import utils
@@ -33,6 +35,7 @@ from pyrography.handlers import (
     UserStatusHandler, RawUpdateHandler, InlineQueryHandler, PollHandler,
     ChosenInlineResultHandler, ChatMemberUpdatedHandler, ChatJoinRequestHandler
 )
+from pyrography.handlers.handler import Handler
 from pyrography.raw.types import (
     UpdateNewMessage, UpdateNewChannelMessage, UpdateNewScheduledMessage,
     UpdateEditMessage, UpdateEditChannelMessage,
@@ -42,8 +45,15 @@ from pyrography.raw.types import (
     UpdateBotInlineSend, UpdateChatParticipant, UpdateChannelParticipant,
     UpdateBotChatInviteRequester
 )
+from pyrography.types import Update
 
 log = logging.getLogger(__name__)
+
+
+@dataclass
+class RunningHandler:
+    handler: Handler
+    update: Update
 
 
 class Dispatcher:
@@ -69,7 +79,7 @@ class Dispatcher:
         self.groups = OrderedDict()
 
         self.pendencies = []
-        self.running_handlers = []
+        self.running_handlers: List[RunningHandler] = []
 
         async def message_parser(update, users, chats):
             return (
@@ -283,7 +293,8 @@ class Dispatcher:
 
                             try:
                                 # Adding handler to running handlers list.
-                                self.running_handlers.append(handler)
+                                current_running_handler = RunningHandler(handler, parsed_update)
+                                self.running_handlers.append(current_running_handler)
 
                                 if inspect.iscoroutinefunction(handler.callback):
                                     await handler.callback(self.client, *args)
@@ -302,7 +313,7 @@ class Dispatcher:
                                 log.exception(e)
                             finally:
                                 # Removing handler from running handlers list.
-                                self.running_handlers.remove(handler)
+                                self.running_handlers.remove(current_running_handler)
 
                             break
             except pyrography.StopPropagation:
