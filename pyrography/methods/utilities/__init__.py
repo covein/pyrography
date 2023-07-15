@@ -23,6 +23,7 @@ with Pyrography. If not, see <http://www.gnu.org/licenses/>.
 
 from .add_handler import AddHandler
 from .export_session_string import ExportSessionString
+from .filter_running_handlers import FilterRunningHandlers
 from .remove_handler import RemoveHandler
 from .restart import Restart
 from .run import Run
@@ -34,6 +35,7 @@ from .stop_transmission import StopTransmission
 class Utilities(
     AddHandler,
     ExportSessionString,
+    FilterRunningHandlers,
     RemoveHandler,
     Restart,
     Run,
